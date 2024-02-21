@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# readme
 
-## Getting Started
+## error
 
-First, run the development server:
+Error: EPERM: operation not permitted - windows - custom schema.prisma location
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## possible culprit
+
+I'm using custom location
+
+my schema.prisma location `./prisma/my-db/schema.prisma`
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## how to reproduce 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- clone this project
+- install
+  
+  ```sh
+  pnpm install
+  ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- generate prisma client
+  
+  ```sh
+  pnpm prisma generate --schema=./prisma/my-db/schema.prisma
+  ```
 
-## Learn More
+- try to build
+  
+  ```sh
+  pnpm build
+  ```
 
-To learn more about Next.js, take a look at the following resources:
+- expected result
+  
+  no error, build success
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- current result
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```sh
+next build
 
-## Deploy on Vercel
+   ▲ Next.js 14.1.0
+   - Environments: .env
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Creating an optimized production build ...
+glob error [Error: EPERM: operation not permitted, scandir 'C:\Users\admin\Application Data'] {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'scandir',
+  path: 'C:\\Users\\admin\\Application Data'
+}
+Failed to compile.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Error: EPERM: operation not permitted, scandir 'C:\Users\admin\Application Data'
+
+
+> Build failed because of webpack errors
+ ELIFECYCLE  Command failed with exit code 1.
+```
